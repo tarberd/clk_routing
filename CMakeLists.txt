@@ -15,6 +15,7 @@ set(OPHIDIAN_INCLUDE_DIRECTORIES
 add_subdirectory(ophidian)
 
 include_directories(OPHIDIAN_INCLUDE_DIRECTORIES)
+include_directories(src)
 
 add_subdirectory(src)
 add_subdirectory(test)
