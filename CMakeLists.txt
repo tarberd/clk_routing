@@ -7,6 +7,10 @@
 #   - add subdirectories
 ################################################################################
 
+################################################################################
+# Set up global variables
+################################################################################
+
 # Set up minimal cmake version
 cmake_minimum_required(VERSION 3.2.2)
 
@@ -24,24 +28,37 @@ execute_process(
     RESULT_VARIABLE submodule_init_exit_code
 )
 
-# Configure Ophidian variables
+# Set Ophidian paths
 set(OPHIDIAN_SOURCE_DIR ${PROJECT_SOURCE_DIR}/ophidian)
 set(OPHIDIAN_BINARY_DIR ${PROJECT_BINARY_DIR}/ophidian)
-set(OPHIDIAN_INCLUDE_DIRECTORIES 
-    ${OPHIDIAN_SOURCE_DIR}
-    ${OPHIDIAN_SOURCE_DIR}/3rdparty
-    ${OPHIDIAN_BINARY_DIR}/3rdparty/Lemon/
+
+# Set Ophidian Dependencies path
+set(OPHIDIAN_DEPENDENCIES_DIR ${OPHIDIAN_SOURCE_DIR}/3rdparty)
+
+# Set Lemon include paths
+set(LEMON_INCLUDE_DIR 
     ${OPHIDIAN_SOURCE_DIR}/3rdparty/Lemon/
+    ${OPHIDIAN_BINARY_DIR}/3rdparty/Lemon/
     ${OPHIDIAN_BINARY_DIR}/3rdparty/Lemon/lemon
 )
 
-# Set Ophidian include paths
-include_directories(${OPHIDIAN_INCLUDE_DIRECTORIES})
+################################################################################
+# Project logic 
+################################################################################
 
-# Set project include path 
-include_directories(src)
+# Configure project include paths
+include_directories(
+    ${PROJECT_SOURCE_DIR}/src
 
-# Add ophidian sibdirectory
+    ${OPHIDIAN_SOURCE_DIR}
+    ${OPHIDIAN_DEPENDENCIES_DIR}
+    ${LEMON_INCLUDE_DIR}
+)
+
+# Set option build shared libs
+option(BUILD_SHARED_LIBS "on/off -> (build every non statc lib shared)/(build everything static)" ON)
+
+# Add ophidian subdirectory
 add_subdirectory(${OPHIDIAN_SOURCE_DIR})
 
 # Then add project source subdirectory
