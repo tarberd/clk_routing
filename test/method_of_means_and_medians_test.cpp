@@ -1,0 +1,69 @@
+#include <catch.hpp>
+
+#include <vector>
+#include <utility>
+
+#include <lemon/list_graph.h>
+#include <ophidian/geometry/Models.h>
+
+#include <method_of_means_and_medians.h>
+
+using ophidian::geometry::Point;
+
+using Node   = lemon::ListDigraph::Node;
+using Arc    = lemon::ListDigraph::Arc;
+using NodeIt = lemon::ListDigraph::NodeIt;
+using ArcIt  = lemon::ListDigraph::ArcIt;
+
+TEST_CASE("Routing one Point", "[clk_router][mmm]"){
+    std::vector<Point> v;
+   
+    v.push_back(Point{2,2});
+
+    lemon::ListDigraph g;
+    auto fountain = g.addNode();
+    lemon::ListDigraph::NodeMap<Point> node_to_pin(g);
+    node_to_pin[fountain] = Point{0,0};
+
+    clk_router::means_and_medians(std::begin(v), std::end(v), fountain, &g, &node_to_pin);
+
+    REQUIRE(node_to_pin[fountain].x() == 0.0 );
+    REQUIRE(node_to_pin[fountain].y() == 0.0 );
+
+    int count = 0;
+    for(ArcIt it(g); it != lemon::INVALID; ++it){
+        Arc arc(it);     
+        Node oppositeNode(g.oppositeNode(fountain, arc)) ;
+        REQUIRE(node_to_pin[oppositeNode].x() == 2.0 );
+        REQUIRE(node_to_pin[oppositeNode].y() == 2.0 );
+        count++;
+    }
+    REQUIRE(count ==1);
+}
+
+TEST_CASE("Routing many Points", "[clk_router][mmm]"){
+    std::vector<Point> v = {Point{15.0,15.0}, Point{10.0,10.0}, Point{20.0,20.0}};
+
+    lemon::ListDigraph g;
+    auto fountain = g.addNode();
+    lemon::ListDigraph::NodeMap<Point> node_to_pin(g);
+    node_to_pin[fountain] = Point{0.0,0.0};
+
+    clk_router::means_and_medians(std::begin(v), std::end(v), fountain, &g, &node_to_pin);
+
+    REQUIRE(node_to_pin[fountain].x() == 0.0 );
+    REQUIRE(node_to_pin[fountain].y() == 0.0 );
+
+    int count = 0;
+    Node oppositeNode;
+    for(ArcIt it(g); it != lemon::INVALID; ++it){
+        Arc arc(it);
+        oppositeNode = g.oppositeNode(fountain, arc) ;
+        if(oppositeNode != lemon::INVALID){
+            REQUIRE(node_to_pin[oppositeNode].x() == 15.0 );
+            REQUIRE(node_to_pin[oppositeNode].y() == 15.0 );
+        }
+        count++;
+    }
+    REQUIRE(count == 3);
+}
